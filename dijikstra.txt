@@ -1,0 +1,127 @@
+#include <bits/stdc++.h>
+#define ll long long int
+#define N 1000
+#define M 1000000007
+#define f(i, a, b) for (ll i = (ll)a; i <= (ll)b; i++)
+#define rf(i, a, b) for (ll i = (ll)a; i >= (ll)b; i--)
+#define po pop_back
+#define pb push_back
+#define lb lower_bound
+#define fi first
+#define se second
+#define mp make_pair
+#define bs binary_search
+#define debug(x) cout << #x << " = " << x << endl
+#define ub upper_bound
+#define ibs ios_base::sync_with_stdio(false)
+#define cti cin.tie(0)
+#define all(x) x.begin(), x.end()
+#define PI 3.14159265
+#define cot cout.tie(0)
+using namespace std;
+/**
+  * @author :: Rishabh
+  *
+  */
+
+// Dijikstra is a greedy algorithm and its time complexity is O(VlogV)
+// Disadvantage of this algorithm : Does not works on negative edges.
+ 
+unordered_map<int,vector<pair<int,int>>>adj;
+void addedge(int v1,int v2,int f,int wt)
+{
+    adj[v1].pb(make_pair(v2,wt));
+    if(f==1)
+        adj[v2].pb(make_pair(v1,wt));
+}
+void printgraph()
+{
+    for(auto it:adj)
+    {
+        cout<<it.first;
+        vector<pair<int,int>> temp=it.second;
+        for(auto x:temp)
+        {
+            cout<<"-> ("<<x.first<< " , "<<x.second<<") ";
+        }
+        cout<<"\n";
+    }
+}
+void dks(int src)
+{
+    // mark all distance to infinity
+    unordered_map<int,int> dist;
+    for(auto j:adj)
+    {
+        dist[j.first]=INT_MAX;
+    }
+
+    // make a set to keep track of the distance of nodes
+    set<pair<int,int>> s;
+    dist[src]=0;
+    s.insert(make_pair(dist[src],src));
+
+    while(!s.empty())
+    {
+        auto q=*(s.begin());
+        int nodeDist=q.first;
+        int node=q.second;
+        s.erase(s.begin());
+
+        // Iterate over the children of current node
+
+        for(auto child:adj[node])
+        {
+            if(dist[child.first]>child.second+nodeDist)
+            {
+
+                // In the set updation of a particular value is not possible
+                // We have to erase the old pair and insert the new pair  
+
+                int dest=child.first;
+                auto f=s.find(make_pair(dist[dest],dest));
+                if(f!=s.end())
+                {
+                    s.erase(f);
+                }
+
+                //Insert the new pair
+
+                dist[dest]=child.second+nodeDist;
+                s.insert(make_pair(dist[dest],dest));
+            }
+        }
+    }
+
+    // Lets print the distance of all nodes
+
+    for(auto d:dist)
+    {
+        cout<<d.first<<" is located at "<<d.second<<"\n";
+    }
+}
+int main()
+{
+    ibs;
+    cti;
+    int t;
+    cin>>t;
+    while(t--)
+    {
+        int v,e;
+        cin>>v>>e;
+        while(e--)
+        {
+            int v1,v2,d;
+            int f;
+            cin>>v1>>v2>>d>>f;
+            // 1 = true means this edge is bidirectional/undirected
+            // 0 = false means this edge is directional
+            addedge(v1,v2,f,d);
+        }
+        dks(1);
+        //printgraph();
+        adj.clear();
+    }
+    return 0;
+}
